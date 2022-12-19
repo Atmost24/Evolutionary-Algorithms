@@ -5,7 +5,7 @@ function evolutionaryAlgorithm(total, n, iters) {
 	console.log("> generating initial population");
 	let population = generatePopulation(total, n);
 	let fitness = evaluate(population);
-	let opers = [operator.insertion_mutation_varied, operator.xover];
+	let opers = [operator.single_insertion_mutation, operator.xover];
 	printStatistics(0, fitness);
 	for (let i = 1; i <= iters; i++) {
 		let offspring = [];

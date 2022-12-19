@@ -23,7 +23,7 @@ let mutation = {
 let insertion_mutation_varied = {
 	arity: 1,
 	apply: function (parent) {
-		let child = parent;
+		let child = parent.slice();
 		const min = 0;
 		const max = parent.length - 1;
 		let mutationRate = 1.0 / child.length;
@@ -42,7 +42,7 @@ let insertion_mutation_varied = {
 let single_insertion_mutation = {
 	arity: 1,
 	apply: function (parent) {
-		let child = parent;
+		let child = parent.slice();
 		const min = 0;
 		const max = parent.length - 1;
 		const index = generateRandonNumberInRange(min, max);
@@ -55,7 +55,32 @@ let single_insertion_mutation = {
 	},
 };
 
-let order_crossover;
+let order_crossover = {
+    arity: 2,
+    apply: function (parent1, parent2) {
+        let child = parent1.slice(), child1 = [];
+		let index = 0;
+		const min = 0;
+		const max = parent.length - 1;
+		//select random index and copy the rest of them from parent 1
+		const position = generateRandonNumberInRange(min, max-1);
+		const range = generateRandonNumberInRange(position+1, max);
+		const subset = child.slice(position,range);
+		parent2.forEach(element => {
+			if ( index >= position && index <= range ) {
+				child1.concat(subset);
+				index = range + 1;
+			}
+			if ( !subset.includes(element) ) {
+				child1.push(element);
+				index += 1;
+			}
+
+		});
+		// iterate through parent 2 and see if they are in the substring, if they are not then added to parent 1
+        return [child1,child1]
+    }
+};
 
 let xover = {
 	arity: 2,
