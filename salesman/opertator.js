@@ -15,7 +15,7 @@ let mutation = {
 				}
 			}
 		}
-		verify(child, "mutation");
+		verify(child, parent.length, "mutation");
 		return [child];
 	},
 };
@@ -34,7 +34,7 @@ let insertion_mutation_varied = {
 				child.splice(location, 0, value);
 			}
 		}
-		verify(child, "insertion_mutation_varied");
+		verify(child, parent.length, "insertion_mutation_varied");
 		return [child];
 	},
 };
@@ -50,7 +50,7 @@ let single_insertion_mutation = {
 		const location = generateRandonNumberInRange(min, max);
 		child.splice(index, 1);
 		child.splice(location, 0, value);
-		verify(child, "single_insertion_mutation");
+		verify(child, parent.length, "single_insertion_mutation");
 		return [child];
 	},
 };
@@ -61,23 +61,25 @@ let order_crossover = {
         let child = parent1.slice(), child1 = [];
 		let index = 0;
 		const min = 0;
-		const max = parent.length - 1;
+		const max = parent1.length - 1;
 		//select random index and copy the rest of them from parent 1
 		const position = generateRandonNumberInRange(min, max-1);
 		const range = generateRandonNumberInRange(position+1, max);
 		const subset = child.slice(position,range);
+		// iterate through parent 2 and see if they are in the substring, if they are not then added to parent 1
 		parent2.forEach(element => {
-			if ( index >= position && index <= range ) {
-				child1.concat(subset);
+			if ( index == position ) {
+				child1 = child1.concat(subset);
 				index = range + 1;
 			}
 			if ( !subset.includes(element) ) {
 				child1.push(element);
 				index += 1;
 			}
-
 		});
-		// iterate through parent 2 and see if they are in the substring, if they are not then added to parent 1
+		verify(child1, parent1.length, "order_crossover");
+		// verify(child2, "xover");
+		
         return [child1,child1]
     }
 };
@@ -102,8 +104,8 @@ let xover = {
 		child2 = child2.concat(extra);
 		child1 = child1.filter(onlyUnique);
 		child2 = child2.filter(onlyUnique);
-		verify(child1, "xover");
-		verify(child2, "xover");
+		verify(child1, parent1.length, "xover");
+		verify(child2, parent2.length, "xover");
 		return [child1, child2];
 	},
 };
@@ -112,8 +114,8 @@ function onlyUnique(value, index, self) {
 	return self.indexOf(value) === index;
 }
 
-function verify(collection, operation) {
-	if (new Set(collection).size !== collection.length) {
+function verify(collection, size, operation) {
+	if (new Set(collection).size !== collection.length || collection.length != size) {
 		console.error("error verify function:", operation);
 		throw new Error(`${operation} makes information be lost`);
 	}
@@ -132,4 +134,5 @@ exports.operators = {
 	insertion_mutation_varied,
 	single_insertion_mutation,
 	xover,
+	order_crossover
 };
