@@ -1,0 +1,14 @@
+{
+  "name": "genetic",
+  "version": "1.0.0",
+  "description": "",
+  "main": "algorithm.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node algorithm",
+    "compile": "tsc tree"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
