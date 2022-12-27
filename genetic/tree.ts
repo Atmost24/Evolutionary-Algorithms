@@ -1,37 +1,39 @@
 export class node<T> {
     public data:T;
-    private father: node<T> | undefined;
-    private left: node<T> | undefined;
-    private right: node<T>  | undefined;
+    private _father: node<T> | undefined;
+    private _left: node<T> | undefined;
+    private _right: node<T>  | undefined;
 
     constructor( data:T, father?: node<T>, left?: node<T>, right?: node<T>) {
         this.data = data;
-        this.father = father ?? undefined;
-        this.left = left ?? undefined;
-        this.right = right ?? undefined;
+        this._father = father ?? undefined;
+        this._left = left ?? undefined;
+        this._right = right ?? undefined;
     }
 
-    getFather() {
-        return this.father;
+    get Father() {
+        return this._father;
     }
 
-    getLeft() {
-        return this.left;
+    get Left() {
+        return this._left;
     }
 
-    getRight() {
-        return this.right;
+    get Right() {
+        return this._right;
     }
 
-    setLeft(left:node<T>) {
-        this.left = left;
+    set Father(father:node<T>) {
+        this._father = father;
     }
 
-    setRight(right:node<T>) {
-        this.right = right;
+    set Left(left:node<T>) {
+        this._left = left;
     }
 
-
+    set Right(right:node<T>) {
+        this._right = right;
+    }
 }
 
 export class Tree<T> {
@@ -40,14 +42,64 @@ export class Tree<T> {
     constructor(root:node<T>) {
         this.root = root;
     }
+
+    getLeaves(root?:node<T>) {
+        root = root ?? this.root;
+        if ( root.Left && root.Right ) {
+            const left_side = this.getLeaves(root.Left);
+            const rigth_side = this.getLeaves(root.Right);
+            return [left_side,rigth_side];
+        }
+        return [root];
+    }
+
+    getHeight(root?:node<T>, count?:number) {
+        root = root ?? this.root;
+        count = count ?? 0;
+        if ( root.Left && root.Right ) {
+            count += 1;
+            const left_side = this.getHeight(root.Left, count);
+            const rigth_side = this.getHeight(root.Right, count);
+            const max = Math.max(left_side,rigth_side);
+            return max;
+        }
+        return count;
+    }
+
+    dataToArray(root?:node<T>) {
+        root = root ?? this.root;
+        const dataTree = [];
+        const tree = [root];
+        const next = [root];
+        while(next.length != 0) {
+            let index = 0;
+            next.forEach(element => {
+                if (element.Left) {
+                    index = tree.indexOf(element);
+                    tree.splice(index,0,element.Left);
+                    next.push(element.Left);
+                }
+                if (element.Right) {
+                    index = tree.indexOf(element);
+                    tree.splice(index+1,0,element.Right);  
+                    next.push(element.Right); 
+                }
+                index = next.indexOf(element);
+                next.splice(index,1);
+            });
+        }
+        tree.forEach(element => {
+            dataTree.push(element.data);
+        });
+        return dataTree;
+    }
+
+    nodeDepth(node:node<T>) {
+        let count = 0;
+        while(node.Father) {
+            count +=1;
+            node = node.Father;
+        }
+        return count;
+    }
 }
-
-
-
-// function createTree() {
-//     const node1 = new node<number>(12);
-//     console.log(">> node1 data:", node1.data);
-//     // const tree_ = new Tree<number>()
-// }
-
-// createTree()
