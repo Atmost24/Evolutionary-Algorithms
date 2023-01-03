@@ -43,10 +43,17 @@ var node = /** @class */ (function () {
 exports.node = node;
 var Tree = /** @class */ (function () {
     function Tree(root) {
-        this.root = root;
+        this._root = root;
     }
+    Object.defineProperty(Tree.prototype, "Root", {
+        get: function () {
+            return this._root;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Tree.prototype.getLeaves = function (root) {
-        root = root !== null && root !== void 0 ? root : this.root;
+        root = root !== null && root !== void 0 ? root : this._root;
         if (root.Left && root.Right) {
             var left_side = this.getLeaves(root.Left);
             var rigth_side = this.getLeaves(root.Right);
@@ -55,7 +62,7 @@ var Tree = /** @class */ (function () {
         return [root];
     };
     Tree.prototype.getHeight = function (root, count) {
-        root = root !== null && root !== void 0 ? root : this.root;
+        root = root !== null && root !== void 0 ? root : this._root;
         count = count !== null && count !== void 0 ? count : 0;
         if (root.Left && root.Right) {
             count += 1;
@@ -66,9 +73,10 @@ var Tree = /** @class */ (function () {
         }
         return count;
     };
-    Tree.prototype.dataToArray = function (root) {
-        root = root !== null && root !== void 0 ? root : this.root;
-        var dataTree = [];
+    Tree.prototype.dataToArray = function (root, completeInfo) {
+        root = root !== null && root !== void 0 ? root : this._root;
+        completeInfo = completeInfo !== null && completeInfo !== void 0 ? completeInfo : false;
+        var dataTree = [], completeTree = [];
         var tree = [root];
         var next = [root];
         var _loop_1 = function () {
@@ -93,7 +101,10 @@ var Tree = /** @class */ (function () {
         }
         tree.forEach(function (element) {
             dataTree.push(element.data);
+            completeTree.push(element);
         });
+        if (completeInfo)
+            return completeTree;
         return dataTree;
     };
     Tree.prototype.nodeDepth = function (node) {
@@ -104,12 +115,13 @@ var Tree = /** @class */ (function () {
         }
         return count;
     };
+    Tree.prototype.getCount = function (root) {
+        root = root !== null && root !== void 0 ? root : this._root;
+        var count = 0, nodes = [];
+        nodes = this.dataToArray(root);
+        count = nodes.length;
+        return count;
+    };
     return Tree;
 }());
 exports.Tree = Tree;
-// function createTree() {
-//     const node1 = new node<number>(12);
-//     console.log(">> node1 data:", node1.data);
-//     // const tree_ = new Tree<number>()
-// }
-// createTree()

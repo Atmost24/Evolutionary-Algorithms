@@ -15,11 +15,11 @@ export class node<T> {
         return this._father;
     }
 
-    get Left() {
+    get Left() {       
         return this._left;
     }
 
-    get Right() {
+    get Right() {       
         return this._right;
     }
 
@@ -37,14 +37,18 @@ export class node<T> {
 }
 
 export class Tree<T> {
-    public root: node<T>;
+    public _root: node<T>;
 
     constructor(root:node<T>) {
-        this.root = root;
+        this._root = root;
+    }
+
+    get Root() {
+        return this._root;
     }
 
     getLeaves(root?:node<T>) {
-        root = root ?? this.root;
+        root = root ?? this._root;
         if ( root.Left && root.Right ) {
             const left_side = this.getLeaves(root.Left);
             const rigth_side = this.getLeaves(root.Right);
@@ -54,7 +58,7 @@ export class Tree<T> {
     }
 
     getHeight(root?:node<T>, count?:number) {
-        root = root ?? this.root;
+        root = root ?? this._root;
         count = count ?? 0;
         if ( root.Left && root.Right ) {
             count += 1;
@@ -66,9 +70,10 @@ export class Tree<T> {
         return count;
     }
 
-    dataToArray(root?:node<T>) {
-        root = root ?? this.root;
-        const dataTree = [];
+    dataToArray(root?:node<T>, completeInfo?: boolean) {
+        root = root ?? this._root;
+        completeInfo = completeInfo ?? false;
+        const dataTree = [], completeTree = [];
         const tree = [root];
         const next = [root];
         while(next.length != 0) {
@@ -90,7 +95,9 @@ export class Tree<T> {
         }
         tree.forEach(element => {
             dataTree.push(element.data);
+            completeTree.push(element);
         });
+        if (completeInfo) return completeTree;
         return dataTree;
     }
 
@@ -100,6 +107,14 @@ export class Tree<T> {
             count +=1;
             node = node.Father;
         }
+        return count;
+    }
+
+    getCount(root:node<T>) {
+        root = root ?? this._root;
+        let count = 0, nodes = [];
+        nodes = this.dataToArray(root);
+        count = nodes.length;
         return count;
     }
 }
