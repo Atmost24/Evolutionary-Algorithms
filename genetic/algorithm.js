@@ -12,7 +12,7 @@ function evolutionaryAlgorithm(total, n, iters) {
 	console.log("> generating initial population");
 	let population = generatePopulation(total, n);
     let fitness = evaluate(population);
-    let opers = [operator.mutation, operator.mutation];
+    let opers = [operator.mutation, operator.crossover];
     printStatistics(0, fitness);
     for (let i = 1; i <= iters; i++) {
 		let offspring = [];
@@ -53,7 +53,6 @@ function evaluate(population) {
 
 function grow(genotype) {
     let phenotype = genotype.dataToArray();
-    // console.log(">> phenotype:", phenotype);
     return phenotype;
 }
 
@@ -93,7 +92,6 @@ function calculateR2(forecast, reference) {
 		ss_res += Math.pow(forecast[i] - reference[i], 2);
 		ss_tot += Math.pow(avg - reference[i], 2);
 	}
-    // c(">> r2:", 1.0 - ss_res / ss_tot);
 	return 1.0 - ss_res / ss_tot;
 }
 

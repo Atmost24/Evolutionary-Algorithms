@@ -1,3 +1,4 @@
+const node = require('./tree').node;
 const operations = ["x","+","-","X","Y"];
 const functions = ["x","+","-"];
 const constans = ["X","Y"];
@@ -24,19 +25,26 @@ let crossover = {
 	arity: 2,
 	apply: function (parent1, parent2) {
 		let child1 = parent1, child2 = parent2;
-		console.log(">> parent1:", parent1.dataToArray())
-		console.log("> parent2:", parent2.dataToArray())
+		// console.log(">> parent1:", parent1.dataToArray())
+		// console.log(">> parent2:", parent2.dataToArray())
 		let count1 = child1.getCount(), count2 = child2.getCount();
 		let random1 = getRandomInt(count1), random2 = getRandomInt(count2);
 		let tree1 = child1.dataToArray(child1.Root,true), tree2 = child2.dataToArray(child2.Root,true);
-		console.log("> node1:", tree1[random1].data)
-		console.log("> node2:", tree2[random2].data)
-		let node1 = tree1[random1];
-		tree1[random1] = tree2[random2];
-		tree2[random2] = node1;
-
-		console.log("> child1:", child1.dataToArray())
-		console.log("> child2:", child2.dataToArray())
+		let node1 = new node(tree1[random1].data);
+		node1.Left = tree1[random1].Left;
+		node1.Right = tree1[random1].Right;
+		tree1[random1].data =  tree2[random2].data;
+		tree1[random1].Left =  tree2[random2].Left;
+		tree1[random1].Right =  tree2[random2].Right;
+		
+		// tree1[random1] = tree2[random2];
+		tree2[random2].data = node1.data;
+		tree2[random2].Left = node1.Left;
+		tree2[random2].Right = node1.Right;
+		// console.log("> tree1: after", tree1)
+		// console.log("> tree2: after", tree2)
+		// console.log("> child1:", child1.dataToArray())
+		// console.log("> child2:", child2.dataToArray())
 		return [child1,child2];
 	}
 }
