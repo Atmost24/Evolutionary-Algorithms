@@ -1,139 +1,112 @@
-export class node<T> {
-    public data:T;
-    private _father: node<T> | undefined;
-    private _left: node<T> | undefined;
-    private _right: node<T>  | undefined;
+export abstract class EquationNode {
+    public children: EquationNode[];
+    public deepness: number = 0;
 
-    constructor( data:T, father?: node<T>, left?: node<T>, right?: node<T>) {
-        this.data = data;
-        this._father = father ?? undefined;
-        this._left = left ?? undefined;
-        this._right = right ?? undefined;
+    constructor(children: EquationNode[]) {
+        this.children = children;
     }
 
-    get Father() {
-        return this._father;
+    public abstract apply(values: any): number;
+    public abstract toString(): string;
+    public abstract clone(): EquationNode;
+}
+
+export enum BinaryOperator {
+    SUM = "+", REST = "-", PRODUCT = "*"
+}
+
+export class BinaryOperatorNode extends EquationNode {
+    public operator: BinaryOperator;
+
+    constructor(operator: BinaryOperator, left: EquationNode, right: EquationNode) {
+        super([left, right]);
+        this.operator = operator;
     }
 
-    get Left() {       
-        return this._left;
+    public apply(values: any): number {
+        if (this.operator === BinaryOperator.SUM)
+            return this.children[0].apply(values) + this.children[1].apply(values);
+        else if (this.operator === BinaryOperator.REST)
+            return this.children[0].apply(values) - this.children[1].apply(values);
+        return this.children[0].apply(values) * this.children[1].apply(values);
     }
 
-    get Right() {       
-        return this._right;
+    public toString(): string {
+        return "(" + this.children[0].toString() + " " + this.operator + " " + this.children[1].toString() + ")";
     }
 
-    set Father(father:node<T>) {
-        this._father = father;
-    }
-
-    set Left(left:node<T>) {
-        this._left = left;
-    }
-
-    set Right(right:node<T>) {
-        this._right = right;
-    }
-
-    clone() {
-        let _node = new node(this.data);
-        let right = this.Right ? this.Right.clone() : undefined;
-        let left = this.Left ? this.Left.clone() : undefined;
-        if (left) {
-            _node.Left = left;
-            left.Father = _node;
-        }
-        if (right) {
-            _node.Right = right;
-            right.Father = _node;
-        }
-        return _node;
+    public clone(): EquationNode {
+        let node = new BinaryOperatorNode(this.operator, this.children[0].clone(), this.children[1].clone());
+        node.deepness = this.deepness;
+        return node;
     }
 }
 
-export class Tree<T> {
-    public _root: node<T>;
+export class VariableNode extends EquationNode {
+    public variable: string;
 
-    constructor(root:node<T>) {
-        this._root = root;
+    constructor(variable: string) {
+        super([]);
+        this.variable = variable;
     }
 
-    get Root() {
-        return this._root;
+    public apply(values: any): number {
+        return values[this.variable] ? values[this.variable] : 0;
     }
 
-    getLeaves(root?:node<T>) {
-        root = root ?? this._root;
-        if ( root.Left && root.Right ) {
-            const left_side = this.getLeaves(root.Left);
-            const rigth_side = this.getLeaves(root.Right);
-            return [left_side,rigth_side];
-        }
-        return [root];
+    public toString(): string {
+        return this.variable;
     }
 
-    getHeight(root?:node<T>, count?:number) {
-        root = root ?? this._root;
-        count = count ?? 0;
-        if ( root.Left && root.Right ) {
-            count += 1;
-            const left_side = this.getHeight(root.Left, count);
-            const rigth_side = this.getHeight(root.Right, count);
-            const max = Math.max(left_side,rigth_side);
-            return max;
-        }
-        return count;
-    }
-
-    dataToArray(root?:node<T>, completeInfo?: boolean) {
-        root = root ?? this._root;
-        completeInfo = completeInfo ?? false;
-        const dataTree = [], completeTree = [];
-        const tree = [root];
-        const next = [root];
-        while(next.length != 0) {
-            let index = 0;
-            next.forEach(element => {
-                if (element.Left) {
-                    index = tree.indexOf(element);
-                    tree.splice(index,0,element.Left);
-                    next.push(element.Left);
-                }
-                if (element.Right) {
-                    index = tree.indexOf(element);
-                    tree.splice(index+1,0,element.Right);  
-                    next.push(element.Right); 
-                }
-                index = next.indexOf(element);
-                next.splice(index,1);
-            });
-        }
-        tree.forEach(element => {
-            dataTree.push(element.data);
-            completeTree.push(element);
-        });
-        if (completeInfo) return completeTree;
-        return dataTree;
-    }
-
-    nodeDepth(node:node<T>) {
-        let count = 0;
-        while(node.Father) {
-            count +=1;
-            node = node.Father;
-        }
-        return count;
-    }
-
-    getCount(root:node<T>) {
-        root = root ?? this._root;
-        let count = 0, nodes = [];
-        nodes = this.dataToArray(root);
-        count = nodes.length;
-        return count;
-    }
-
-    clone() {
-        return new Tree(this._root.clone())
+    public clone(): EquationNode {
+        let node = new VariableNode(this.variable);
+        node.deepness = this.deepness;
+        return node;
     }
 }
+
+export class EquationTree {
+    public root: EquationNode;
+
+    constructor(root: EquationNode) {
+        this.root = root;
+    }
+
+    public static generate(maxDeepness: number, deepness: number, opers: BinaryOperator[], variables: string[]): EquationNode {
+        let random = Math.random();
+        let index = (random < 0.5 && deepness < maxDeepness) ? Math.floor(opers.length * Math.random()) : Math.floor(variables.length * Math.random());
+        let node = (random < 0.5 && deepness < maxDeepness) ?
+            new BinaryOperatorNode(opers[index], EquationTree.generate(maxDeepness, deepness + 1, opers, variables), EquationTree.generate(maxDeepness, deepness + 1, opers, variables)) :
+            new VariableNode(variables[index]);
+        node.deepness = deepness;
+        return node;
+    }
+
+    public apply(values: any): number {
+        return this.root.apply(values);
+    }
+
+    public toString() {
+        return this.root.toString();
+    }
+
+    public clone(): EquationTree {
+        return new EquationTree(this.root.clone());
+    }
+}
+
+// async function test() {
+//     let opers: BinaryOperator[] = [
+//         BinaryOperator.SUM, BinaryOperator.REST, BinaryOperator.PRODUCT
+//     ];
+//     let variables: string[] = ['X', 'Y'];
+//     const MAX_DEEPNESS = 10;
+//     let tree = new EquationTree(EquationTree.generate(MAX_DEEPNESS, 1, opers, variables));
+//     let sibling = tree.clone();
+//     console.log("> tree:", tree.toString());
+//     console.log("> value:", tree.apply({ 'X': 0.5, 'Y': 3}));
+//     console.log("> sibling:", sibling.toString());
+//     console.log("> value:", sibling.apply({ 'X': 0.5, 'Y': 3}));
+// }
+
+// test();
