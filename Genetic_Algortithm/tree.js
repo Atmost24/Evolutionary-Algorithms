@@ -38,6 +38,20 @@ var node = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    node.prototype.clone = function () {
+        var _node = new node(this.data);
+        var right = this.Right ? this.Right.clone() : undefined;
+        var left = this.Left ? this.Left.clone() : undefined;
+        if (left) {
+            _node.Left = left;
+            left.Father = _node;
+        }
+        if (right) {
+            _node.Right = right;
+            right.Father = _node;
+        }
+        return _node;
+    };
     return node;
 }());
 exports.node = node;
@@ -121,6 +135,9 @@ var Tree = /** @class */ (function () {
         nodes = this.dataToArray(root);
         count = nodes.length;
         return count;
+    };
+    Tree.prototype.clone = function () {
+        return new Tree(this._root.clone());
     };
     return Tree;
 }());

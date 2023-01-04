@@ -6,17 +6,21 @@ const constans = ["X","Y"];
 let mutation = {
 	arity: 1,
 	apply: function (parent) {
-		let child = parent;
+		console.log(">> parent before:", parent.dataToArray());
+		let child = parent.clone();
 		let count = child.getCount();
 		let random = getRandomInt(count);
 		let tree = child.dataToArray(child.Root,true);
 		let selectedNode = tree[random];
-		if (!constans.includes(selectedNode.data)) {
-			tree[random].data = generateFunction(functions.length);
-		}
-		else {
-			tree[random].data = generateConstant(constans.length);
-		}
+		// if (!constans.includes(selectedNode.data)) {
+		// 	tree[random].data = generateFunction(functions.length);
+		// }
+		// else {
+		// 	tree[random].data = generateConstant(constans.length);
+		// }
+		tree[random].data = "omg"
+		console.log(">> parent afet:", parent.dataToArray());
+		console.log(">> child:", parent.dataToArray());
 		return [child];
 	}
 }
@@ -25,8 +29,6 @@ let crossover = {
 	arity: 2,
 	apply: function (parent1, parent2) {
 		let child1 = parent1, child2 = parent2;
-		// console.log(">> parent1:", parent1.dataToArray())
-		// console.log(">> parent2:", parent2.dataToArray())
 		let count1 = child1.getCount(), count2 = child2.getCount();
 		let random1 = getRandomInt(count1), random2 = getRandomInt(count2);
 		let tree1 = child1.dataToArray(child1.Root,true), tree2 = child2.dataToArray(child2.Root,true);
@@ -37,14 +39,16 @@ let crossover = {
 		tree1[random1].Left =  tree2[random2].Left;
 		tree1[random1].Right =  tree2[random2].Right;
 		
-		// tree1[random1] = tree2[random2];
 		tree2[random2].data = node1.data;
 		tree2[random2].Left = node1.Left;
 		tree2[random2].Right = node1.Right;
-		// console.log("> tree1: after", tree1)
-		// console.log("> tree2: after", tree2)
-		// console.log("> child1:", child1.dataToArray())
-		// console.log("> child2:", child2.dataToArray())
+
+		console.log(">> parent 1:", parent1);
+		console.log(">> child 1:", child1);
+		console.log(">> parent 2:", parent2);
+		console.log(">> child 2:", child2);
+
+
 		return [child1,child2];
 	}
 }

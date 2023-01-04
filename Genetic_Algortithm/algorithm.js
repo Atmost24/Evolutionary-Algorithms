@@ -4,6 +4,7 @@ const operator = require('./operators').module;
 const points = require('./data/points.json');
 
 const c = console.log
+
 const operations = ["x","+","-","X","Y"];
 const functions = ["x","+","-"];
 const constans = ["X","Y"];
@@ -12,8 +13,8 @@ function evolutionaryAlgorithm(total, n, iters) {
 	console.log("> generating initial population");
 	let population = generatePopulation(total, n);
     let fitness = evaluate(population);
-    let opers = [operator.mutation, operator.crossover];
-    printStatistics(0, fitness);
+    let opers = [operator.mutation, operator.mutation];
+    printStatistics(0, fitness, population);
     for (let i = 1; i <= iters; i++) {
 		let offspring = [];
 		let offspringSize = [];
@@ -27,7 +28,7 @@ function evolutionaryAlgorithm(total, n, iters) {
 		let offspringFitness = evaluate(offspring);
 		population = select(population, offspring, offspringSize, fitness, offspringFitness);
 		fitness = evaluate(population);
-		printStatistics(i, fitness);
+		printStatistics(i, fitness, population);
 	}
 }
 
@@ -143,7 +144,7 @@ function mate(parents, oper) {
 	return oper.apply(parents[0], parents[1]);
 }
 
-function printStatistics(iter, fitness) {
+function printStatistics(iter, fitness, population) {
 	let maximum = 0,
 		minimum = 0,
 		average = 0;
@@ -153,6 +154,7 @@ function printStatistics(iter, fitness) {
 		average += fitness[i] / fitness.length;
 	}
 	console.log(">", iter, ":", fitness[minimum], fitness[maximum], average);
+	console.log("> max :", population[maximum].dataToArray() );
 }
 
 function select(population, offspring, offspringSize, fitness, offspringFitness) {
@@ -174,7 +176,7 @@ function select(population, offspring, offspringSize, fitness, offspringFitness)
 		let chosen = { genotype: population[i], fitness: fitness[i] };
 		for (let j = 0; j < offspringSize[i]; j++) {
 			let child = { genotype: offspring[index], fitness: offspringFitness[index] };
-			if (child.fitness >= chosen.fitness)
+			if (child.fitness > chosen.fitness)
 				chosen = child;
 			index++;
 		}
@@ -183,7 +185,7 @@ function select(population, offspring, offspringSize, fitness, offspringFitness)
 	return next;
 }
 
-evolutionaryAlgorithm(100,4,100);
+evolutionaryAlgorithm(100,6,100);
 
 exports.module = {
     constans,

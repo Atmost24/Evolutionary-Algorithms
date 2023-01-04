@@ -34,6 +34,21 @@ export class node<T> {
     set Right(right:node<T>) {
         this._right = right;
     }
+
+    clone() {
+        let _node = new node(this.data);
+        let right = this.Right ? this.Right.clone() : undefined;
+        let left = this.Left ? this.Left.clone() : undefined;
+        if (left) {
+            _node.Left = left;
+            left.Father = _node;
+        }
+        if (right) {
+            _node.Right = right;
+            right.Father = _node;
+        }
+        return _node;
+    }
 }
 
 export class Tree<T> {
@@ -116,5 +131,9 @@ export class Tree<T> {
         nodes = this.dataToArray(root);
         count = nodes.length;
         return count;
+    }
+
+    clone() {
+        return new Tree(this._root.clone())
     }
 }
